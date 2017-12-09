@@ -16,25 +16,30 @@
 
 #include <ESP8266WiFi.h>
 
-#ifdef Display_on
-
-#include <LiquidCrystal_I2C.h>
-
-LiquidCrystal_I2C display(0x27, 16, 2);
-#endif
 #endif
 #ifdef ESP32
 #include <WiFi.h>
+#endif
+
 #ifdef Display_on
+
 #include "SSD1306.h"
-SSD1306  display(0x3c, 4, 15);
+
+#ifdef ESP8266
+SSD1306 display(0x3c, D1, D2);
+#else
+SSD1306  display(0x3c, 4, 15); // ESP8266 D2,D8
 #endif
 #endif
 
+#include <ArduinoJson.h>
 #include "Firebase.h"
+//#include "Oauth.h"
 #include "images.h"
 
 FirebaseClass Firebase;
+//Oauth auth("AIzaSyBQGAOw3TcQOhHd6ZMnFX8HraBtCsKxB7o");
+StaticJsonBuffer<500> jsonBuffer;
 JsonObject *o;
 int sensorDataLen = 0;
 int sensorData = 0;
@@ -81,18 +86,12 @@ void connectToWiFi() {
 #ifdef Display_on
 
 void initDisplay() {
-#ifdef ESP8266
-    display.begin(16, 2);
-    display.init();
-    display.backlight();
-#endif
-#ifdef ESP32
-    pinMode(16,OUTPUT);
+    pinMode(16, OUTPUT);
     digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
     delay(50);
     digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
 
-    display.init();
+//    display.init();
     display.flipScreenVertically();
     display.setFont(ArialMT_Plain_10);
     display.setContrast(255);
@@ -106,7 +105,6 @@ void initDisplay() {
     display.clear();
     display.drawXbm(34, 14, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
     display.display();
-#endif
 }
 
 #endif
@@ -122,35 +120,29 @@ void setup(void) {
     connectToWiFi();
 
     Firebase.begin(FIREBASE_HOST, FIREBASE_DATABASE_SECRET);
-    o = &Firebase.getJsonObject();
+//    auth.login("daviddriessen@live.nl", "7k69i5SqLfSa");
+    o = &jsonBuffer.createObject();
 //    user_init();
 }
 
-StaticJsonBuffer<500> jsonBuffer;
-
 void loop(void) {
+//    Serial.println(auth.getAccessToken());
+    delay(5000);
     if (send) {
         Serial.println("Send");
         String hash = Firebase.pushJson("regen", *o);
         send = false;
     }
 #ifdef Display_on
-#ifdef ESP8266
-    JsonObject &l = Firebase.getJson("display");
-    l.prettyPrintTo(Serial);
-    display.clear();
-    display.setCursor(0, 0);
-    l["een"].printTo(display);
-    display.setCursor(0, 1);
-    l["twee"].printTo(display);
-#endif
-#ifdef ESP32
+//    JsonObject &l = Firebase.getJson("display");
+//    l.prettyPrintTo(Serial);
+
     display.clear();
     display.drawXbm(5, 5, cloud_width, cloud_height, cloud_bits);
     display.drawXbm(30, 5, rain_width, rain_height, rain_bits);
     display.drawXbm(55, 5, sun_width, sun_height, sun_bits);
+    display.drawString(64, 15, "Demo text.");
     display.display();
-#endif
 #endif
     delay(1000);
 }

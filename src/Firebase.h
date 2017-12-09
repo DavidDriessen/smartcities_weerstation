@@ -19,7 +19,6 @@
 
 class FirebaseClass {
     StaticJsonBuffer<500> jsonBuffer;
-    StaticJsonBuffer<500> jsonBuffer2;
     HTTPClient http_;
     String host;
     String databaseSecret;
@@ -44,8 +43,6 @@ public:
     String getString(const String &path);
 
     JsonObject &getJson(const String &path);
-
-    JsonObject &getJsonObject();
 };
 
 

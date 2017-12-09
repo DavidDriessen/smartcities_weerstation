@@ -59,11 +59,6 @@ JsonObject &FirebaseClass::getJson(const String &path) {
     return jsonBuffer.parse(getString(path));
 }
 
-JsonObject &FirebaseClass::getJsonObject() {
-    jsonBuffer2.clear();
-    return jsonBuffer2.parseObject("{}");
-}
-
 void FirebaseClass::setRequest(const String &path) {
     if (databaseSecret.length() > 10) {
         http_.begin(host, 443, "/" + path + ".json?auth=" + databaseSecret, FIREBASE_FINGERPRINT);
