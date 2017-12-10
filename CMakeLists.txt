@@ -11,7 +11,7 @@ add_custom_target(
 
 add_custom_target(
     PLATFORMIO_UPLOAD ALL
-    COMMAND gksudo '${PLATFORMIO_CMD} -f -c clion run --target upload'
+    COMMAND ${PLATFORMIO_CMD} -f -c clion run --target upload
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

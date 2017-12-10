@@ -3,7 +3,7 @@
 //
 
 
-#define Display_on
+//#define Display_on
 
 #define FIREBASE_HOST "smartcities-d2e38.firebaseio.com"
 #define FIREBASE_DATABASE_SECRET "f4Lu1azVREDQFqn0Dp0a8NeQerAB8HIitUiEMwJu"
@@ -24,6 +24,7 @@
 #ifdef Display_on
 
 #include "SSD1306.h"
+#include "images.h"
 
 #ifdef ESP8266
 SSD1306 display(0x3c, D1, D2);
@@ -34,11 +35,10 @@ SSD1306  display(0x3c, 4, 15); // ESP8266 D2,D8
 
 #include <ArduinoJson.h>
 #include "Firebase.h"
-//#include "Oauth.h"
-#include "images.h"
+#include "Oauth.h"
 
 FirebaseClass Firebase;
-//Oauth auth("AIzaSyBQGAOw3TcQOhHd6ZMnFX8HraBtCsKxB7o");
+Oauth auth;
 StaticJsonBuffer<500> jsonBuffer;
 JsonObject *o;
 int sensorDataLen = 0;
@@ -120,13 +120,14 @@ void setup(void) {
     connectToWiFi();
 
     Firebase.begin(FIREBASE_HOST, FIREBASE_DATABASE_SECRET);
-//    auth.login("daviddriessen@live.nl", "7k69i5SqLfSa");
+    auth.setKey("AIzaSyBQGAOw3TcQOhHd6ZMnFX8HraBtCsKxB7o");
+    auth.login("daviddriessen@live.nl", "7k69i5SqLfSa");
     o = &jsonBuffer.createObject();
 //    user_init();
 }
 
 void loop(void) {
-//    Serial.println(auth.getAccessToken());
+    Serial.println(auth.getAccessToken());
     delay(5000);
     if (send) {
         Serial.println("Send");
