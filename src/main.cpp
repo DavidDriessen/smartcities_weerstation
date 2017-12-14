@@ -3,7 +3,7 @@
 //
 
 
-//#define Display_on
+#define Display_on
 
 #define FIREBASE_HOST "smartcities-d2e38.firebaseio.com"
 #define FIREBASE_DATABASE_SECRET "f4Lu1azVREDQFqn0Dp0a8NeQerAB8HIitUiEMwJu"
@@ -91,7 +91,7 @@ void initDisplay() {
     delay(50);
     digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
 
-//    display.init();
+    display.init();
     display.flipScreenVertically();
     display.setFont(ArialMT_Plain_10);
     display.setContrast(255);
@@ -135,7 +135,7 @@ void loop(void) {
         send = false;
     }
 #ifdef Display_on
-//    JsonObject &l = Firebase.getJson("display");
+//    JsonObject &l = Firebase.getJson("users/MnJuo2LMGHTWahq3Hz5e783Mqr83");
 //    l.prettyPrintTo(Serial);
 
     display.clear();

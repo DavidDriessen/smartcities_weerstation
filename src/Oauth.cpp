@@ -21,9 +21,9 @@ void Oauth::login(const String email, const String password) {
 
     while (http_.connected()) {
         String line = http_.readStringUntil('\n');
-        Serial.println(line);
+//        Serial.println(line);
         if (line == "\r") {
-            Serial.println("headers received");
+//            Serial.println("headers received");
             break;
         }
     }
@@ -54,9 +54,9 @@ String Oauth::getAccessToken() {
 
     while (http_.connected()) {
         String line = http_.readStringUntil('\n');
-        Serial.println(line);
+//        Serial.println(line);
         if (line == "\r") {
-            Serial.println("headers received");
+//            Serial.println("headers received");
             break;
         }
     }

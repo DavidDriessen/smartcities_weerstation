@@ -6,6 +6,7 @@
 #define WEERSTATION_FIREBASE_H
 
 #include <ArduinoJson.h>
+#include "Oauth.h"
 
 #ifdef ESP8266
 #include <ESP8266HTTPClient.h>
@@ -22,11 +23,13 @@ class FirebaseClass {
     HTTPClient http_;
     String host;
     String databaseSecret;
+    Oauth *oauth = nullptr;
 
     void setRequest(const String &path);
 
 public:
     void begin(const String &host, const String &databaseSecret = "");
+    void begin(const String &host, Oauth *oauth);
 
     void setInt(const String &path, int value);
 

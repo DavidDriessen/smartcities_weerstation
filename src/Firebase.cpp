@@ -9,6 +9,11 @@ void FirebaseClass::begin(const String &host, const String &databaseSecret) {
     this->databaseSecret = databaseSecret;
 }
 
+void FirebaseClass::begin(const String &host, Oauth *oauth) {
+    this->host = host;
+    this->oauth = oauth;
+}
+
 void FirebaseClass::setInt(const String &path, int value) {
     set(path, String(value));
 }
@@ -62,7 +67,10 @@ JsonObject &FirebaseClass::getJson(const String &path) {
 void FirebaseClass::setRequest(const String &path) {
     if (databaseSecret.length() > 10) {
         http_.begin(host, 443, "/" + path + ".json?auth=" + databaseSecret, FIREBASE_FINGERPRINT);
+    } else if (oauth != nullptr) {
+        http_.begin(host, 443, "/" + path + ".json?auth=" + oauth->getAccessToken(), FIREBASE_FINGERPRINT);
     } else {
         http_.begin(host, 443, "/" + path + ".json", FIREBASE_FINGERPRINT);
     }
 }
+
