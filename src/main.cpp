@@ -13,29 +13,24 @@
 #define WIFI_PASSWORD "aa111111"
 
 #ifdef ESP8266
-
 #include <ESP8266WiFi.h>
-
 #endif
 #ifdef ESP32
 #include <WiFi.h>
 #endif
 
 #ifdef Display_on
-
-#include "SSD1306.h"
-#include "images.h"
-
+#include "Display.h"
 #ifdef ESP8266
-SSD1306 display(0x3c, D1, D2);
-#else
-SSD1306  display(0x3c, 4, 15); // ESP8266 D2,D8
+Display display(D1, D2);
+#endif
+#ifdef ESP32
+Display display(4, 15); // ESP8266 D2,D8
 #endif
 #endif
 
 #include <ArduinoJson.h>
 #include "Firebase.h"
-#include "Oauth.h"
 
 FirebaseClass Firebase;
 Oauth auth;
@@ -69,7 +64,6 @@ void user_init(void) {
     ets_timer_arm(&myTimer, 1000, true);
 }
 
-
 void connectToWiFi() {
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
@@ -83,42 +77,13 @@ void connectToWiFi() {
     Serial.println(WiFi.localIP());
 }
 
-#ifdef Display_on
-
-void initDisplay() {
-    pinMode(16, OUTPUT);
-    digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
-    delay(50);
-    digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
-
-    display.init();
-    display.flipScreenVertically();
-    display.setFont(ArialMT_Plain_10);
-    display.setContrast(255);
-
-    display.clear();
-    display.drawXbm(0, 5, HelTec_LOGO_width, HelTec_LOGO_height, HelTec_LOGO_bits);
-    display.display();
-
-    delay(5000);
-
-    display.clear();
-    display.drawXbm(34, 14, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
-    display.display();
-}
-
-#endif
-
 void setup(void) {
     Serial.begin(115200);
 //    Serial.setDebugOutput(1);
-
 #ifdef Display_on
-    initDisplay();
+    display.initDisplay();
 #endif
-
     connectToWiFi();
-
     Firebase.begin(FIREBASE_HOST, FIREBASE_DATABASE_SECRET);
     auth.setKey("AIzaSyBQGAOw3TcQOhHd6ZMnFX8HraBtCsKxB7o");
     auth.login("daviddriessen@live.nl", "7k69i5SqLfSa");
@@ -137,11 +102,10 @@ void loop(void) {
 #ifdef Display_on
 //    JsonObject &l = Firebase.getJson("users/MnJuo2LMGHTWahq3Hz5e783Mqr83");
 //    l.prettyPrintTo(Serial);
-
     display.clear();
-    display.drawXbm(5, 5, cloud_width, cloud_height, cloud_bits);
-    display.drawXbm(30, 5, rain_width, rain_height, rain_bits);
-    display.drawXbm(55, 5, sun_width, sun_height, sun_bits);
+    display.showCloud(5, 5);
+    display.showRain(30, 5);
+    display.showSun(55, 5);
     display.drawString(64, 15, "Demo text.");
     display.display();
 #endif
