@@ -16,11 +16,15 @@
 #include <ESP8266WiFi.h>
 #endif
 #ifdef ESP32
+
 #include <WiFi.h>
+
 #endif
 
 #ifdef Display_on
+
 #include "Display.h"
+
 #ifdef ESP8266
 Display display(D1, D2);
 #endif
@@ -86,7 +90,18 @@ void setup(void) {
     connectToWiFi();
     Firebase.begin(FIREBASE_HOST, FIREBASE_DATABASE_SECRET);
     auth.setKey("AIzaSyBQGAOw3TcQOhHd6ZMnFX8HraBtCsKxB7o");
-    auth.login("daviddriessen@live.nl", "7k69i5SqLfSa");
+    if (!auth.load()) {
+//        auth.login("daviddriessen@live.nl", "7k69i5SqLfSa");
+        Serial.println("Enter email");
+        while(Serial.available() == 0){}
+        String email = Serial.readStringUntil('\n');
+        Serial.print("Email: ");
+        Serial.println(email);
+        Serial.println("Enter password");
+        while(Serial.available() == 0){}
+        String password = Serial.readStringUntil('\n');
+        auth.login(email, password);
+    }
     o = &jsonBuffer.createObject();
 //    user_init();
 }

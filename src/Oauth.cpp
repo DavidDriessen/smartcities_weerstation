@@ -69,3 +69,28 @@ String Oauth::getAccessToken() {
 
     return o["access_token"].as<String>();
 }
+
+void Oauth::save() {
+    if (refreshToken.length() < EEPROM_SIZE) {
+        if (!EEPROM.begin(EEPROM_SIZE)) {
+            Serial.println("failed to initialise EEPROM");
+            delay(1000000);
+        }
+        for (int i = 0; i < refreshToken.length(); i++) {
+            EEPROM.write(i, byte(refreshToken[i]));
+        }
+        EEPROM.commit();
+    }
+}
+
+bool Oauth::load() {
+    if (!EEPROM.begin(EEPROM_SIZE)) {
+        Serial.println("failed to initialise EEPROM");
+        delay(1000000);
+    }
+    refreshToken = "";
+    for (int i = 0; i < EEPROM_SIZE; i++) {
+        refreshToken += char(EEPROM.read(i));
+    }
+    return getAccessToken().length() > 0;
+}
