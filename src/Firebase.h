@@ -20,16 +20,16 @@
 
 class FirebaseClass {
     StaticJsonBuffer<500> jsonBuffer;
-    HTTPClient http_;
-    String host;
-    String databaseSecret;
+    WiFiClientSecure http_;
+    const char *host;
+    const char *databaseSecret;
     Oauth *oauth = nullptr;
 
-    void setRequest(const String &path);
+    void setRequest(const String &path, int len);
 
 public:
-    void begin(const String &host, const String &databaseSecret = "");
-    void begin(const String &host, Oauth *oauth);
+    FirebaseClass(const char *host, const char *databaseSecret = "");
+    FirebaseClass(const char *host, Oauth *oauth);
 
     void setInt(const String &path, int value);
 

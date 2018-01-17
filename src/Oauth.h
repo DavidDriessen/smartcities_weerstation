@@ -19,22 +19,34 @@
 #endif
 
 class Oauth {
+public:
     StaticJsonBuffer<9000> jsonBuffer;
     WiFiClientSecure http_;
     String refreshToken;
-    String key;
+    const char *key;
+    String access_token;
+    String user_id;
 public:
+
+    Oauth(){
+        refreshToken.reserve(260);
+        access_token.reserve(1000);
+        user_id.reserve(30);
+    }
+
     void setKey(const char *key) {
         this->key = key;
     }
 
     void login(const String email, const String password);
 
-    String getAccessToken();
+    String &getAccessToken(bool New = false);
 
     void save();
 
     bool load();
+
+    String getUserId();
 };
 
 
