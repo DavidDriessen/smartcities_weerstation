@@ -16,8 +16,6 @@
 #include <HTTPClient.h>
 #endif
 
-#define FIREBASE_FINGERPRINT "B8:4F:40:70:0C:63:90:E0:07:E8:7D:BD:B4:11:D0:4A:EA:9C:90:F6"
-
 class FirebaseClass {
     StaticJsonBuffer<500> jsonBuffer;
     WiFiClientSecure http_;

@@ -5,9 +5,6 @@
 #ifndef WEERSTATION_OAUTH_H
 #define WEERSTATION_OAUTH_H
 
-#define EEPROM_SIZE 512
-
-#include "EEPROM.h"
 #include <ArduinoJson.h>
 
 #ifdef ESP8266
@@ -41,10 +38,6 @@ public:
     void login(const String email, const String password);
 
     String &getAccessToken(bool New = false);
-
-    void save();
-
-    bool load();
 
     String getUserId();
 };
