@@ -36,9 +36,9 @@ void Config::runSetup() {
                                               "</form>");
     });
 
-    server.on("/setup", [&server, this]() {
-        String save[3] = {server.arg("ssid"), server.arg("password"), server.arg("postcode")};
-        this->save(save, 2);
+    server.on("/setup", [&]() {
+        String saveData[3] = {server.arg("ssid"), server.arg("password"), server.arg("postcode")};
+        save(saveData, 3);
         server.send(200, "text/plain", "Weer station set up.");
         server.handleClient();
         delay(500);
@@ -59,17 +59,17 @@ void Config::runSetup() {
 
 bool Config::save(String data[], int len) {
     int count = 0;
-    for (int i = 0; i < len, i++;) {
-        count += data[i].length();
+    for (int i = 0; i < len; i++) {
+        count += data[i].length() + 1;
     }
-    if (count < EEPROM_SIZE - len - 1) {
+    if (count < EEPROM_SIZE) {
         if (!EEPROM.begin(EEPROM_SIZE)) {
             Serial.println("failed to initialise EEPROM");
             delay(100);
             ESP.restart();
         }
         int pos = 0;
-        for (int i = 0; i < len, i++;) {
+        for (int i = 0; i < len; i++) {
             for (int j = 0; j < data[i].length(); j++) {
                 EEPROM.write(pos++, byte(data[i][j]));
             }
@@ -104,5 +104,6 @@ bool Config::load(int index, String &data) {
             }
         }
     }
+    Serial.println(data);
     return data == "" == 0;
 }

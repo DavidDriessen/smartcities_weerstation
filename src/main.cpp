@@ -41,8 +41,10 @@ bool send = false;
 
 ETSTimer myTimer;
 
-void timerCallback(void *pArg) {
-    (*o)["neerslag"] = gaugeCount;
+#define measurementIntervalInMinuts 5
+
+void timerCallback(void *pArg) { // cup / oppervlak = mm neerslag
+    (*o)["regenMMPU"] = ((float(gaugeCount) / measurementIntervalInMinuts) * (float(43) / 113)) * 60;
     gaugeCount = 0;
     send = true;
 }
@@ -52,7 +54,7 @@ void user_init(void) {
 #define ets_timer_arm(a, b, c) ets_timer_arm_new(a, b, c, 1)
 #endif
     ets_timer_setfn(&myTimer, timerCallback, NULL);
-    ets_timer_arm(&myTimer, 120000, true);
+    ets_timer_arm(&myTimer, measurementIntervalInMinuts * 60000, true);
 }
 
 void connectToWiFi(String &ssid, String &password) {
@@ -121,7 +123,9 @@ void loop(void) {
     if (gaugeCount > 0) {
         display.showRain(5, 15);
         display.drawString(30, 10, "Het regent.");
-        display.drawString(30, 30, String(gaugeCount) + " mm");
+        display.drawString(30, 30,
+                           String(((float(gaugeCount) / measurementIntervalInMinuts) * (float(43) / 113)) * 60) +
+                           " mm/u");
     } else {
         display.showCloud(5, 15);
     }
