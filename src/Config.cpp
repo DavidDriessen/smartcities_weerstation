@@ -20,9 +20,11 @@ void Config::runSetup() {
     ESP32WebServer server(80);
 #endif
 
-    server.on("/", [&server]() {
+    server.on("/", [&]() {
         int numberOfNetworks = WiFi.scanNetworks();
         String networks;
+        String postcode;
+        load(2, postcode);
         for (int i = 0; i < numberOfNetworks; ++i) {
             networks += "<option>" + WiFi.SSID(i) + "</option>";
         }
@@ -31,7 +33,7 @@ void Config::runSetup() {
                                               "SSID: <select name='ssid'>" + networks +
                                       "</select><br>"
                                               "Password: <input type='password' name='password'><br>"
-                                              "Postcode: <input name='postcode'><br>"
+                                              "Postcode: <input name='postcode' value='" + postcode + "'><br>"
                                               "<input type='submit'>"
                                               "</form>");
     });
@@ -63,11 +65,7 @@ bool Config::save(String data[], int len) {
         count += data[i].length() + 1;
     }
     if (count < EEPROM_SIZE) {
-        if (!EEPROM.begin(EEPROM_SIZE)) {
-            Serial.println("failed to initialise EEPROM");
-            delay(100);
-            ESP.restart();
-        }
+        EEPROM.begin(EEPROM_SIZE);
         int pos = 0;
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < data[i].length(); j++) {
@@ -85,11 +83,7 @@ bool Config::save(String data[], int len) {
 }
 
 bool Config::load(int index, String &data) {
-    if (!EEPROM.begin(EEPROM_SIZE)) {
-        Serial.println("failed to initialise EEPROM");
-        delay(100);
-        ESP.restart();
-    }
+    EEPROM.begin(EEPROM_SIZE);
     int pos = 0;
     char temp = 0;
     for (int i = 0; i <= index; i++) {

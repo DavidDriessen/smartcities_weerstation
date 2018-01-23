@@ -7,16 +7,13 @@
 
 #define EEPROM_SIZE 512
 
-
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #endif
 #ifdef ESP32
-
-#include "WiFi.h"
+#include <WiFi.h>
 #include <ESP32WebServer.h>
-
 #endif
 
 #include "FS.h"

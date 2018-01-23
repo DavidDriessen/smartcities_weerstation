@@ -6,7 +6,9 @@
 #define Display_on
 
 #ifdef ESP8266
+
 #include <ESP8266WiFi.h>
+
 #endif
 #ifdef ESP32
 
@@ -24,6 +26,10 @@ Display display(D1, D2);
 #ifdef ESP32
 Display display(4, 15); // ESP8266 D2,D8
 #endif
+#endif
+
+#ifndef INPUT_PULLDOWN
+#define INPUT_PULLDOWN INPUT
 #endif
 
 #include <ArduinoJson.h>
@@ -44,7 +50,7 @@ ETSTimer myTimer;
 #define measurementIntervalInMinuts 5
 
 void timerCallback(void *pArg) { // cup / oppervlak = mm neerslag
-    (*o)["regenMMPU"] = ((float(gaugeCount) / measurementIntervalInMinuts) * (float(43) / 113)) * 60;
+    (*o)["rainMMPH"] = ((float(gaugeCount) / measurementIntervalInMinuts) * (float(43) / 113)) * 60;
     gaugeCount = 0;
     send = true;
 }
@@ -91,8 +97,8 @@ void setup(void) {
     String postcode;
     con.load(2, postcode);
     o = &jsonBuffer.createObject();
-    (*o)["postcode"] = postcode;
-    JsonObject &p = o->createNestedObject("datum");
+    (*o)["zipCode"] = postcode;
+    JsonObject &p = o->createNestedObject("date");
     p[".sv"] = "timestamp";
 
     connectToWiFi(ssid, password);
@@ -124,7 +130,7 @@ void loop(void) {
         display.showRain(5, 15);
         display.drawString(30, 10, "Het regent.");
         display.drawString(30, 30,
-                           String(((float(gaugeCount) / measurementIntervalInMinuts) * (float(43) / 113)) * 60) +
+                           String(((float(gaugeCount) * (60 / measurementIntervalInMinuts)) * (float(43) / 113))) +
                            " mm/u");
     } else {
         display.showCloud(5, 15);
