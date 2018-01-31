@@ -47,19 +47,28 @@ bool send = false;
 
 ETSTimer myTimer;
 
-#define measurementIntervalInMinuts 5
+#define measurementIntervalInMinuts 1
+
+float calcRainFall(float count, boolean interval = true) {
+    const float mmPgauge = 43.f / 113.f;
+    if(interval) {
+        const float measurementIntervalToHoures = 60.f / measurementIntervalInMinuts;
+        return count * measurementIntervalToHoures * mmPgauge;
+    }
+    return count * mmPgauge;
+}
 
 void timerCallback(void *pArg) { // cup / oppervlak = mm neerslag
-    (*o)["rainMMPH"] = ((float(gaugeCount) / measurementIntervalInMinuts) * (float(43) / 113)) * 60;
+    (*o)["rainMMPH"] = calcRainFall(gaugeCount);
     gaugeCount = 0;
     send = true;
 }
 
-void user_init(void) {
+void user_init() {
 #ifdef ESP8266
 #define ets_timer_arm(a, b, c) ets_timer_arm_new(a, b, c, 1)
 #endif
-    ets_timer_setfn(&myTimer, timerCallback, NULL);
+    ets_timer_setfn(&myTimer, timerCallback, nullptr);
     ets_timer_arm(&myTimer, measurementIntervalInMinuts * 60000, true);
 }
 
@@ -74,9 +83,10 @@ void connectToWiFi(String &ssid, String &password) {
     Serial.println(WiFi.localIP());
 }
 
-void setup(void) {
+void setup() {
     pinMode(19, INPUT_PULLDOWN);
     pinMode(5, INPUT_PULLDOWN);
+    pinMode(17, INPUT_PULLDOWN);
     Serial.begin(115200);
     Serial.setDebugOutput(false);
 #ifdef Display_on
@@ -107,18 +117,23 @@ void setup(void) {
     user_init();
 }
 
-void loop(void) {
+void loop() {
 //    Serial.println(auth.getAccessToken());
     delay(100);
     if (send) {
         Serial.println("Send");
-        Firebase.pushJson("sensoren/" + auth.getUserId(), *o);
+        Firebase.pushJson("sensors/" + auth.getUserId(), *o);
         send = false;
     }
-    if (digitalRead(5) != gaugeStatus) {
-        gaugeStatus = (bool) digitalRead(5);
-        gaugeCount++;
-        Serial.println(gaugeCount);
+    int left = digitalRead(5);
+    int right = digitalRead(17);
+//    Serial.println(String(left) + " " + String(right));
+    if ((left + right) == 1) {
+        if (right != gaugeStatus) {
+            gaugeStatus = (bool) right;
+            gaugeCount++;
+            Serial.println(gaugeCount);
+        }
     }
 #ifdef Display_on
 //    JsonObject &l = Firebase.getJson("users/MnJuo2LMGHTWahq3Hz5e783Mqr83");
@@ -129,9 +144,7 @@ void loop(void) {
     if (gaugeCount > 0) {
         display.showRain(5, 15);
         display.drawString(30, 10, "Het regent.");
-        display.drawString(30, 30,
-                           String(((float(gaugeCount) * (60 / measurementIntervalInMinuts)) * (float(43) / 113))) +
-                           " mm/u");
+        display.drawString(30, 30, String(calcRainFall(gaugeCount, false)) + " mm");
     } else {
         display.showCloud(5, 15);
     }
