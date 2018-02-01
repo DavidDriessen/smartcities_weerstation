@@ -1,5 +1,5 @@
 //
-// Created by root on 11/7/17.
+// Created by David Driessen on 11/7/17.
 //
 
 #ifndef WEERSTATION_FIREBASE_H
@@ -23,27 +23,15 @@ class FirebaseClass {
     const char *databaseSecret;
     Oauth *oauth = nullptr;
 
+/// Setup the connection with the database
     void setRequest(const String &path, int len);
 
 public:
-    FirebaseClass(const char *host, const char *databaseSecret = "");
+    explicit FirebaseClass(const char *host, const char *databaseSecret = "");
     FirebaseClass(const char *host, Oauth *oauth);
 
-    void setInt(const String &path, int value);
-
-    void set(const String &path, const String &value, const String &attr = "value");
-
-    JsonObject &setJson(const String &path, const JsonObject &value);
-
+/// Push a new record to the database
     String pushJson(const String &path, const JsonObject &value);
-
-    int getInt(const String &path, const String &attr = "value");
-
-    String get(const String &path, const String &attr = "value");
-
-    String getString(const String &path);
-
-    JsonObject &getJson(const String &path);
 };
 
 

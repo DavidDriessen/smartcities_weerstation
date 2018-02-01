@@ -1,5 +1,5 @@
 //
-// Created by root on 1/18/18.
+// Created by David Driessen on 1/18/18.
 //
 
 #ifndef WEERSTATION_CONFIG_H
@@ -22,10 +22,13 @@
 class Config {
 
 public:
+/// Run the setup to configure the device
     void runSetup();
 
+/// Save data to the device storage
     bool save(String data[], int len);
 
+/// Load data from the device storage
     bool load(int index, String &data);
 };
 

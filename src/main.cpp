@@ -1,8 +1,9 @@
 //
-// Created by root on 11/23/17.
+// Created by David Driessen on 11/23/17.
 //
 
 
+// Enable display
 #define Display_on
 
 #ifdef ESP8266
@@ -11,9 +12,7 @@
 
 #endif
 #ifdef ESP32
-
 #include <WiFi.h>
-
 #endif
 
 #ifdef Display_on
@@ -47,29 +46,22 @@ bool send = false;
 
 ETSTimer myTimer;
 
-#define measurementIntervalInMinuts 1
+#define measurementIntervalInMinuts 10
 
 float calcRainFall(float count, boolean interval = true) {
+//  mmPgauge = cupSize in mm3 / funnelSize in mm2
     const float mmPgauge = 43.f / 113.f;
-    if(interval) {
+    if (interval) {
         const float measurementIntervalToHoures = 60.f / measurementIntervalInMinuts;
         return count * measurementIntervalToHoures * mmPgauge;
     }
     return count * mmPgauge;
 }
 
-void timerCallback(void *pArg) { // cup / oppervlak = mm neerslag
+void updateSensorData(void *pArg) {
     (*o)["rainMMPH"] = calcRainFall(gaugeCount);
     gaugeCount = 0;
     send = true;
-}
-
-void user_init() {
-#ifdef ESP8266
-#define ets_timer_arm(a, b, c) ets_timer_arm_new(a, b, c, 1)
-#endif
-    ets_timer_setfn(&myTimer, timerCallback, nullptr);
-    ets_timer_arm(&myTimer, measurementIntervalInMinuts * 60000, true);
 }
 
 void connectToWiFi(String &ssid, String &password) {
@@ -82,6 +74,9 @@ void connectToWiFi(String &ssid, String &password) {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 }
+
+int s = 0;
+int m = measurementIntervalInMinuts;
 
 void setup() {
     pinMode(19, INPUT_PULLDOWN);
@@ -114,20 +109,30 @@ void setup() {
     connectToWiFi(ssid, password);
     auth.setKey("AIzaSyBQGAOw3TcQOhHd6ZMnFX8HraBtCsKxB7o");
     auth.login("admin@admin.nl", "adminadmin");
-    user_init();
+
+//    Start timer
+#ifdef ESP8266
+#define ets_timer_arm(a, b, c) ets_timer_arm_new(a, b, c, 1)
+#endif
+    ets_timer_setfn(&myTimer, updateSensorData, nullptr);
+    ets_timer_arm(&myTimer, measurementIntervalInMinuts * 60000, true);
 }
 
 void loop() {
-//    Serial.println(auth.getAccessToken());
-    delay(100);
+    delay(1000);
+
+//  Send the sensor data to the database
     if (send) {
         Serial.println("Send");
         Firebase.pushJson("sensors/" + auth.getUserId(), *o);
         send = false;
+        m = measurementIntervalInMinuts;
+        s = 0;
     }
+
+//  Read sensor position and check for changes
     int left = digitalRead(5);
     int right = digitalRead(17);
-//    Serial.println(String(left) + " " + String(right));
     if ((left + right) == 1) {
         if (right != gaugeStatus) {
             gaugeStatus = (bool) right;
@@ -136,18 +141,22 @@ void loop() {
         }
     }
 #ifdef Display_on
-//    JsonObject &l = Firebase.getJson("users/MnJuo2LMGHTWahq3Hz5e783Mqr83");
-//    l.prettyPrintTo(Serial);
     display.clear();
     display.showSun(5, 5);
     display.setFont(ArialMT_Plain_10);
     if (gaugeCount > 0) {
         display.showRain(5, 15);
         display.drawString(30, 10, "Het regent.");
-        display.drawString(30, 30, String(calcRainFall(gaugeCount, false)) + " mm");
+        display.drawString(30, 25, String(calcRainFall(gaugeCount, false)) + " mm");
     } else {
         display.showCloud(5, 15);
     }
+    display.drawString(30, 40, String(m) + ":" + String(s));
     display.display();
 #endif
+    s--;
+    if (s == -1) {
+        s = 59;
+        m--;
+    }
 }

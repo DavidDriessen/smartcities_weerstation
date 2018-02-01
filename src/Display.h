@@ -11,49 +11,25 @@
 
 class Display : public SSD1306 {
 public:
-    Display(uint8_t _sda, uint8_t _scl) : SSD1306(0x3c, _sda, _scl) {
+    Display(uint8_t _sda, uint8_t _scl) : SSD1306(0x3c, _sda, _scl) {}
 
-    }
+///  Initiate the display
+    void initDisplay();
 
-    void initDisplay() {
-        pinMode(16, OUTPUT);
-        digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
-        delay(50);
-        digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
+///  Display the heltec logo on the screen
+    void HelTecSplash();
 
-        this->init();
-        this->flipScreenVertically();
-        this->setFont(ArialMT_Plain_10);
-        this->setContrast(255);
+///  Display the wifi logo on the screen
+    void WifiSplash();
 
-        this->HelTecSplash();
-        delay(5000);
-        this->WifiSplash();
-    }
+///  Place a cloud icon on the screen
+    void showCloud(int16_t x, int16_t y);
 
-    void HelTecSplash() {
-        this->clear();
-        this->drawXbm(0, 5, HelTec_LOGO_width, HelTec_LOGO_height, HelTec_LOGO_bits);
-        this->display();
-    }
+///  Place a rain icon on the screen
+    void showRain(int16_t x, int16_t y);
 
-    void WifiSplash() {
-        this->clear();
-        this->drawXbm(34, 14, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
-        this->display();
-    }
-
-    void showCloud(int16_t x, int16_t y) {
-        this->drawXbm(x, y, cloud_width, cloud_height, cloud_bits);
-    }
-
-    void showRain(int16_t x, int16_t y) {
-        this->drawXbm(x, y, rain_width, rain_height, rain_bits);
-    }
-
-    void showSun(int16_t x, int16_t y) {
-        this->drawXbm(x, y, sun_width, sun_height, sun_bits);
-    }
+///  Place a sun icon on the screen
+    void showSun(int16_t x, int16_t y);
 };
 
 

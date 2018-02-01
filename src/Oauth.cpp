@@ -1,8 +1,14 @@
 //
-// Created by root on 12/9/17.
+// Created by David Driessen on 12/9/17.
 //
 
 #include "Oauth.h"
+
+Oauth::Oauth() {
+    refreshToken.reserve(260);
+    access_token.reserve(1000);
+    user_id.reserve(30);
+}
 
 void Oauth::login(const String email, const String password) {
     JsonObject &root = jsonBuffer.createObject();
@@ -19,9 +25,7 @@ void Oauth::login(const String email, const String password) {
                         "Content-Type: application/json\r\n\r\n" + s);
     while (http_.connected()) {
         String line = http_.readStringUntil('\n');
-//        Serial.println(line);
         if (line == "\r") {
-//            Serial.println("headers received");
             break;
         }
     }
@@ -30,14 +34,13 @@ void Oauth::login(const String email, const String password) {
     response += "}";
     jsonBuffer.clear();
     JsonObject &o = jsonBuffer.parseObject(response);
-//        o.prettyPrintTo(Serial);
 
     http_.stop();
     refreshToken = o["refreshToken"].as<String>();
 }
 
 String &Oauth::getAccessToken(bool New) {
-    if(New || access_token=="") {
+    if (New || access_token == "") {
         JsonObject &root = jsonBuffer.createObject();
         root["grant_type"] = "refresh_token";
         root["refresh_token"] = refreshToken;
@@ -53,9 +56,7 @@ String &Oauth::getAccessToken(bool New) {
 
         while (http_.connected()) {
             String line = http_.readStringUntil('\n');
-//        Serial.println(line);
             if (line == "\r") {
-//            Serial.println("headers received");
                 break;
             }
         }
@@ -66,7 +67,6 @@ String &Oauth::getAccessToken(bool New) {
         response += "}";
         jsonBuffer.clear();
         JsonObject &o = jsonBuffer.parseObject(response);
-//        o.prettyPrintTo(Serial);
 
         user_id = o["user_id"].as<String>();
         access_token = o["access_token"].as<String>();
@@ -75,8 +75,9 @@ String &Oauth::getAccessToken(bool New) {
 }
 
 String Oauth::getUserId() {
-    if(user_id=="") {
+    if (user_id == "") {
         getAccessToken();
     }
     return user_id;
 }
+
