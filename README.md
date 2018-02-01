@@ -20,4 +20,4 @@ Id  | Name              | Platform
 To install the dependencies run: `pio lib install <dependencie>`
 
 After installing all the dependencies you can flash th ESP with 
-the following command `pio run`.
+the following command `pio run -t upload`.
